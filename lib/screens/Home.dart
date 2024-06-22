@@ -88,30 +88,37 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0.0,
         backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Center(
-          child: Text(
-            'Invoices',
-            style: TextStyle(
-              color: Colors.black,
-            ),
-          ),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.black),
-          onPressed: () {
-            // Implement menu action
-          },
+        toolbarHeight: 100.0,
+        title: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            SizedBox(height: 24.0),
+            IconButton(
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+                icon: Icon(Icons.auto_awesome_rounded),
+                color: Colors.black),
+            SizedBox(width: 8.0),
+          ],
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.image, color: Colors.black),
-            onPressed: () {
-              // Implement image option action
-            },
+          Padding(
+            padding: const EdgeInsets.all(30.0),
+            child: Container(
+              width: 40.0,
+              height: 30.0,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(25),
+                image: const DecorationImage(
+                  image: AssetImage('assets/images/profile.jpeg'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
           ),
-          SizedBox(width: 10),
         ],
       ),
       body: ValueListenableBuilder(

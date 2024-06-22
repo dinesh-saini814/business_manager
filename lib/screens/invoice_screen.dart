@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:bill_maker/components/invoice_item.dart';
-import 'package:bill_maker/pdf_generator.dart';
+import 'package:bill_maker/components/pdf_generator.dart';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
@@ -97,10 +97,6 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
               icon: const Icon(Icons.picture_as_pdf),
               onPressed: _generatePDF,
             ),
-            // IconButton(
-            //   icon: const Icon(Icons.download),
-            //   onPressed: _downloadPDF,
-            // ),
           ],
         ),
         body: Padding(
@@ -123,13 +119,15 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       return Card(
                         child: ListTile(
                           title: Text('Item: ${item.item}'),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Quantity: ${item.quantity}'),
-                              Text('Rate: ${item.rate}'),
-                            ],
-                          ),
+                          subtitle: item.quantity == 0 && item.rate == 0.0
+                              ? null
+                              : Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Quantity: ${item.quantity}'),
+                                    Text('Rate: ${item.rate}'),
+                                  ],
+                                ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -204,12 +202,6 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                   border: UnderlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a quantity';
-                  }
-                  return null;
-                },
               ),
             ),
             const SizedBox(width: 10),
@@ -222,12 +214,6 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                 ),
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a rate';
-                  }
-                  return null;
-                },
               ),
             ),
             IconButton(
@@ -274,12 +260,6 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                   border: UnderlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a quantity';
-                  }
-                  return null;
-                },
               ),
             ),
             const SizedBox(width: 10),
@@ -292,12 +272,6 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                 ),
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a rate';
-                  }
-                  return null;
-                },
               ),
             ),
             IconButton(
@@ -340,11 +314,23 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
 
   void _saveEditedItem(int index) {
     setState(() {
-      _invoiceItems[index] = Item(
-        item: _itemController.text,
-        quantity: int.tryParse(_quantityController.text) ?? 0,
-        rate: double.tryParse(_rateController.text) ?? 0.0,
-      );
+      if (_invoiceItems[index].quantity == 0 &&
+          _invoiceItems[index].rate == 0.0) {
+        // Preserve the item name for title rows
+        _invoiceItems[index] = Item(
+          item: _itemController.text,
+          quantity: 0,
+          rate: 0.0,
+        );
+      } else {
+        // Update regular item rows
+        _invoiceItems[index] = Item(
+          item: _itemController.text,
+          quantity: int.tryParse(_quantityController.text) ?? 0,
+          rate: double.tryParse(_rateController.text) ?? 0.0,
+        );
+      }
+
       _editingIndex = null;
       _itemController.clear();
       _quantityController.clear();
@@ -358,44 +344,38 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     });
   }
 
-  Future<void> _generatePDF() async {
-    final pdfData = await PdfGenerator.generatePdf(InvoiceItem(
-      title: _titleController.text,
-      items: _invoiceItems,
-      selected: false,
-    ));
-    final outputDir = await getTemporaryDirectory();
-    final outputFile = File('${outputDir.path}/invoice.pdf');
-    await outputFile.writeAsBytes(pdfData);
-
-    OpenFile.open(outputFile.path);
-  }
-
   void _startListening() async {
-    if (_isListening) {
-      await _speech.stop();
-      setState(() {
-        _isListening = false;
-      });
-    } else {
+    if (!_isListening) {
       bool available = await _speech.initialize(
-        onStatus: (status) {
-          if (status == 'notListening') {
-            setState(() => _isListening = false);
-          }
-        },
-        onError: (errorNotification) => print('onError: $errorNotification'),
+        onStatus: (val) => print('onStatus: $val'),
+        onError: (val) => print('onError: $val'),
       );
-
       if (available) {
         setState(() => _isListening = true);
         _speech.listen(
-          onResult: (result) => setState(() {
-            _itemController.text = result.recognizedWords;
+          onResult: (val) => setState(() {
+            _itemController.text = val.recognizedWords;
           }),
-          localeId: 'hi-IN', // Set the locale to Hindi
         );
       }
+    } else {
+      setState(() => _isListening = false);
+      _speech.stop();
     }
+  }
+
+  void _generatePDF() async {
+    final pdfBytes = await PdfGenerator.generatePdf(
+      InvoiceItem(
+        title: _titleController.text,
+        items: _invoiceItems,
+        selected: false,
+      ),
+    );
+
+    final output = await getTemporaryDirectory();
+    final file = File('${output.path}/invoice.pdf');
+    await file.writeAsBytes(pdfBytes);
+    await OpenFile.open(file.path);
   }
 }
