@@ -58,20 +58,23 @@ class ItemAdapter extends TypeAdapter<Item> {
     };
     return Item(
       item: fields[0] as String,
-      quantity: fields[1] as int,
-      rate: fields[2] as double,
+      size: fields[1] as String,
+      quantity: fields[2] as double,
+      rate: fields[3] as double,
     );
   }
 
   @override
   void write(BinaryWriter writer, Item obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.item)
       ..writeByte(1)
-      ..write(obj.quantity)
+      ..write(obj.size)
       ..writeByte(2)
+      ..write(obj.quantity)
+      ..writeByte(3)
       ..write(obj.rate);
   }
 

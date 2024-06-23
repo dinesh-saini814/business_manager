@@ -16,23 +16,27 @@ class InvoiceItem extends HiveObject {
   InvoiceItem({
     required this.title,
     required this.items,
-    required this.selected,
+    this.selected = false,
   });
 }
 
 @HiveType(typeId: 1)
-class Item extends HiveObject {
+class Item {
   @HiveField(0)
   String item;
 
   @HiveField(1)
-  int quantity;
+  String size;
 
   @HiveField(2)
+  double quantity;
+
+  @HiveField(3)
   double rate;
 
   Item({
     required this.item,
+    required this.size,
     required this.quantity,
     required this.rate,
   });

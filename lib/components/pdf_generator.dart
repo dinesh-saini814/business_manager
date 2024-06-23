@@ -11,17 +11,13 @@ class PdfGenerator {
     // Load Hindi font (e.g., Google Noto Sans Devanagari)
     final fontData =
         await rootBundle.load("assets/fonts/NotoSansDevanagari-Regular.ttf");
-
     final ttf = pw.Font.ttf(fontData.buffer.asByteData());
 
     final fontDataBold =
         await rootBundle.load("assets/fonts/NotoSansDevanagari-Bold.ttf");
-
     final ttfBold = pw.Font.ttf(fontDataBold.buffer.asByteData());
 
-    final tableHeaders = ['Sr No.', 'Item', 'Quantity', 'Rate', 'Total'];
-
-    int srNo = 1;
+    final tableHeaders = ['Item', 'Size', 'Quantity', 'Rate', 'Total'];
 
     // Calculate Grand Total
     double grandTotal = 0.0;
@@ -44,8 +40,8 @@ class PdfGenerator {
               border: null,
               defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
               columnWidths: {
-                0: pw.FixedColumnWidth(50), // Sr No. column width
-                1: pw.FlexColumnWidth(), // Item column width (flexible)
+                0: pw.FlexColumnWidth(), // Item column width (flexible)
+                1: pw.FixedColumnWidth(140), // Size column width
                 2: pw.FixedColumnWidth(60), // Quantity column width
                 3: pw.FixedColumnWidth(60), // Rate column width
                 4: pw.FixedColumnWidth(60), // Total column width
@@ -57,14 +53,19 @@ class PdfGenerator {
                     border: null,
                     color: PdfColors.grey100,
                   ),
-                  children: tableHeaders.map((header) {
+                  children: tableHeaders.asMap().entries.map((entry) {
+                    int index = entry.key;
+                    String header = entry.value;
                     return pw.Padding(
                       padding: pw.EdgeInsets.all(4),
-                      child: pw.Center(
-                        child: pw.Text(
-                          header,
-                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                      child: pw.Text(
+                        header,
+                        style: pw.TextStyle(
+                          fontWeight: pw.FontWeight.bold,
                         ),
+                        textAlign: index == 0
+                            ? pw.TextAlign.left
+                            : pw.TextAlign.center,
                       ),
                     );
                   }).toList(),
@@ -74,17 +75,7 @@ class PdfGenerator {
                   pw.TableRow(
                     children: [
                       pw.Padding(
-                        padding: pw.EdgeInsets.all(4),
-                        child: pw.Text(
-                          item.quantity == 0 && item.rate == 0.0
-                              ? '=>'
-                              : (srNo++).toString(),
-                          style: pw.TextStyle(
-                              fontWeight: pw.FontWeight.normal, font: ttf),
-                        ),
-                      ),
-                      pw.Padding(
-                        padding: pw.EdgeInsets.all(4),
+                        padding: pw.EdgeInsets.all(4.5),
                         child: pw.Text(
                           item.item,
                           style: item.quantity == 0 && item.rate == 0.0
@@ -99,7 +90,17 @@ class PdfGenerator {
                         ),
                       ),
                       pw.Padding(
-                        padding: pw.EdgeInsets.all(4),
+                        padding: pw.EdgeInsets.all(4.5),
+                        child: pw.Center(
+                          child: pw.Text(
+                            item.size,
+                            style:
+                                pw.TextStyle(fontWeight: pw.FontWeight.normal),
+                          ),
+                        ),
+                      ),
+                      pw.Padding(
+                        padding: pw.EdgeInsets.all(4.5),
                         child: pw.Center(
                           child: pw.Text(
                             item.quantity == 0 && item.rate == 0.0
@@ -111,7 +112,7 @@ class PdfGenerator {
                         ),
                       ),
                       pw.Padding(
-                        padding: pw.EdgeInsets.all(4),
+                        padding: pw.EdgeInsets.all(4.5),
                         child: pw.Center(
                           child: pw.Text(
                             item.quantity == 0 && item.rate == 0.0
@@ -123,12 +124,13 @@ class PdfGenerator {
                         ),
                       ),
                       pw.Padding(
-                        padding: pw.EdgeInsets.all(4),
+                        padding: pw.EdgeInsets.all(4.5),
                         child: pw.Center(
                           child: pw.Text(
                             item.quantity == 0 && item.rate == 0.0
                                 ? ''
-                                : (item.quantity * item.rate).toString(),
+                                : (item.quantity * item.rate)
+                                    .toStringAsFixed(2),
                             style:
                                 pw.TextStyle(fontWeight: pw.FontWeight.normal),
                           ),
@@ -138,20 +140,43 @@ class PdfGenerator {
                   ),
               ],
             ),
+            pw.SizedBox(height: 14),
+            pw.Row(children: [
+              pw.Expanded(
+                child: pw.DecoratedBox(
+                  decoration: pw.BoxDecoration(
+                    border: pw.Border(
+                      bottom: pw.BorderSide(
+                        color: PdfColors.black,
+                        width: .5,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ]), // Space between table and grand total
             pw.SizedBox(height: 40), // Space between table and grand total
 
             // Grand Total section
             pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.end,
               children: [
-                pw.Text(
-                  'Total:',
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                ),
-                pw.SizedBox(width: 10),
-                pw.Text(
-                  grandTotal.toStringAsFixed(2),
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                pw.Container(
+                  decoration: pw.BoxDecoration(
+                    border: pw.Border.symmetric(
+                      horizontal: pw.BorderSide(
+                        color: PdfColors.black,
+                        width: .5,
+                      ),
+                    ),
+                  ),
+                  child: pw.Padding(
+                    padding: pw.EdgeInsets.all(6),
+                    child: pw.Text(
+                      "Total amount:  " + grandTotal.toStringAsFixed(2),
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    ),
+                  ),
                 ),
               ],
             ),

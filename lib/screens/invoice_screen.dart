@@ -31,8 +31,11 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   bool _isListening = false;
 
   TextEditingController _itemController = TextEditingController();
+  TextEditingController _sizeControllerA = TextEditingController();
+  TextEditingController _sizeControllerB = TextEditingController();
   TextEditingController _quantityController = TextEditingController();
   TextEditingController _rateController = TextEditingController();
+  bool _isRActive = false;
 
   @override
   void initState() {
@@ -50,6 +53,40 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     if (!status.isGranted) {
       await Permission.microphone.request();
     }
+  }
+
+  void _toggleRIcon() {
+    setState(() {
+      _isRActive = !_isRActive;
+      if (!_isRActive) {
+        _sizeControllerB.clear();
+      }
+      _calculateAndSetValues();
+    });
+  }
+
+  void _calculateAndSetValues() {
+    double sizeA = double.tryParse(_sizeControllerA.text) ?? 0.0;
+    double sizeB =
+        _isRActive ? 1.0 : (double.tryParse(_sizeControllerB.text) ?? 0.0);
+
+    double totalSquareFeet = convertToFeet(sizeA) * convertToFeet(sizeB);
+
+    setState(() {
+      _quantityController.text = totalSquareFeet.toStringAsFixed(2);
+    });
+  }
+
+  double convertToFeet(double feetInches) {
+    int feet = feetInches.floor();
+    double inches = (feetInches - feet) * 10;
+    return feet + (inches / 12);
+  }
+
+  String formatSize(double feetInches) {
+    int feet = feetInches.floor();
+    int inches = ((feetInches - feet) * 10).round();
+    return "$feet'.${inches}\"";
   }
 
   @override
@@ -118,13 +155,15 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       }
                       return Card(
                         child: ListTile(
-                          title: Text('Item: ${item.item}'),
+                          title: Text('${item.item}'),
                           subtitle: item.quantity == 0 && item.rate == 0.0
                               ? null
                               : Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Quantity: ${item.quantity}'),
+                                    Text('Size: ${item.size}'),
+                                    Text(
+                                        'Quantity: ${item.quantity.toStringAsFixed(2)}'),
                                     Text('Rate: ${item.rate}'),
                                   ],
                                 ),
@@ -216,13 +255,60 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                     const TextInputType.numberWithOptions(decimal: true),
               ),
             ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                controller: _sizeControllerA,
+                decoration: const InputDecoration(
+                  labelText: 'Size A',
+                  border: UnderlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (value) => _calculateAndSetValues(),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Icon(Icons.clear, size: 20),
+            const SizedBox(width: 10),
+            Expanded(
+              child: TextFormField(
+                controller: _sizeControllerB,
+                decoration: const InputDecoration(
+                  labelText: 'Size B',
+                  border: UnderlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                enabled: !_isRActive,
+                onChanged: (value) => _calculateAndSetValues(),
+              ),
+            ),
+            GestureDetector(
+              onTap: _toggleRIcon,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: _isRActive ? Colors.white : Colors.transparent,
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                child: _isRActive
+                    ? Icon(
+                        Icons.radio_button_checked,
+                        size: 24,
+                        color: Colors.blueGrey,
+                      )
+                    : Icon(Icons.radio_button_off, size: 24),
+              ),
+            ),
             IconButton(
-              icon: const Icon(Icons.add),
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   _addItemToList();
                 }
               },
+              icon: const Icon(Icons.add),
             ),
           ],
         ),
@@ -291,15 +377,34 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
 
   void _addItemToList() {
     setState(() {
-      var newItem = Item(
-        item: _itemController.text,
-        quantity: int.tryParse(_quantityController.text) ?? 0,
-        rate: double.tryParse(_rateController.text) ?? 0.0,
+      String size;
+      double sizeA = double.tryParse(_sizeControllerA.text) ?? 0.0;
+      double sizeB =
+          _isRActive ? 1.0 : (double.tryParse(_sizeControllerB.text) ?? 0.0);
+
+      double totalSquareFeet = convertToFeet(sizeA) * convertToFeet(sizeB);
+
+      if (_isRActive) {
+        size = '${formatSize(sizeA)} R';
+      } else {
+        size = '${formatSize(sizeA)} x ${formatSize(sizeB)}';
+      }
+
+      _invoiceItems.add(
+        Item(
+          item: _itemController.text,
+          size: size,
+          quantity: double.parse(totalSquareFeet.toStringAsFixed(2)),
+          rate: double.tryParse(_rateController.text) ?? 0.0,
+        ),
       );
-      _invoiceItems.add(newItem);
+
       _itemController.clear();
+      _sizeControllerA.clear();
+      _sizeControllerB.clear();
       _quantityController.clear();
       _rateController.clear();
+      _isRActive = false;
     });
   }
 
@@ -314,23 +419,15 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
 
   void _saveEditedItem(int index) {
     setState(() {
-      if (_invoiceItems[index].quantity == 0 &&
-          _invoiceItems[index].rate == 0.0) {
-        // Preserve the item name for title rows
-        _invoiceItems[index] = Item(
-          item: _itemController.text,
-          quantity: 0,
-          rate: 0.0,
-        );
-      } else {
-        // Update regular item rows
-        _invoiceItems[index] = Item(
-          item: _itemController.text,
-          quantity: int.tryParse(_quantityController.text) ?? 0,
-          rate: double.tryParse(_rateController.text) ?? 0.0,
-        );
-      }
-
+      _invoiceItems[index] = Item(
+        item: _itemController.text,
+        size: _invoiceItems[index].size,
+        quantity: double.parse((_quantityController.text.isNotEmpty
+                ? double.tryParse(_quantityController.text)
+                : 0.0)!
+            .toStringAsFixed(2)),
+        rate: double.tryParse(_rateController.text) ?? 0.0,
+      );
       _editingIndex = null;
       _itemController.clear();
       _quantityController.clear();
@@ -344,38 +441,46 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     });
   }
 
-  void _startListening() async {
-    if (!_isListening) {
-      bool available = await _speech.initialize(
-        onStatus: (val) => print('onStatus: $val'),
-        onError: (val) => print('onError: $val'),
-      );
-      if (available) {
-        setState(() => _isListening = true);
-        _speech.listen(
-          onResult: (val) => setState(() {
-            _itemController.text = val.recognizedWords;
-          }),
-        );
-      }
-    } else {
-      setState(() => _isListening = false);
-      _speech.stop();
-    }
-  }
-
   void _generatePDF() async {
-    final pdfBytes = await PdfGenerator.generatePdf(
+    final pdfData = await PdfGenerator.generatePdf(
       InvoiceItem(
         title: _titleController.text,
         items: _invoiceItems,
-        selected: false,
       ),
     );
 
-    final output = await getTemporaryDirectory();
-    final file = File('${output.path}/invoice.pdf');
-    await file.writeAsBytes(pdfBytes);
-    await OpenFile.open(file.path);
+    final output = await getExternalStorageDirectory();
+    final file = File('${output!.path}/invoice.pdf');
+    await file.writeAsBytes(pdfData);
+
+    OpenFile.open(file.path);
+  }
+
+  void _startListening() async {
+    if (_isListening) {
+      await _speech.stop();
+      setState(() {
+        _isListening = false;
+      });
+    } else {
+      bool available = await _speech.initialize(
+        onStatus: (status) {
+          if (status == 'notListening') {
+            setState(() => _isListening = false);
+          }
+        },
+        onError: (errorNotification) => print('onError: $errorNotification'),
+      );
+
+      if (available) {
+        setState(() => _isListening = true);
+        _speech.listen(
+          onResult: (result) => setState(() {
+            _itemController.text = result.recognizedWords;
+          }),
+          localeId: 'hi-IN', // Set the locale to Hindi
+        );
+      }
+    }
   }
 }
