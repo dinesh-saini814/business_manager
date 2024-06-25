@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:bill_maker/components/invoice_item.dart';
 import 'package:bill_maker/components/pdf_generator.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +8,7 @@ import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:http/http.dart' as http;
 
 class InvoiceScreen extends StatefulWidget {
   final List<Item>? initialItems;
@@ -132,7 +135,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
           actions: [
             IconButton(
               icon: const Icon(Icons.picture_as_pdf),
-              onPressed: _generatePDF,
+              onPressed: _generatePdf,
             ),
           ],
         ),
@@ -144,45 +147,55 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (_editingIndex == null) _buildInputSection(),
+                if (_editingIndex != null)
+                  _buildEditSection(_invoiceItems[_editingIndex!]),
                 Expanded(
-                  child: ListView.builder(
+                  child: ReorderableListView(
                     physics: const BouncingScrollPhysics(),
-                    itemCount: _invoiceItems.length,
-                    itemBuilder: (context, index) {
-                      var item = _invoiceItems[index];
-                      if (_editingIndex == index) {
-                        return _buildEditSection(item, index);
-                      }
-                      return Card(
-                        child: ListTile(
-                          title: Text('${item.item}'),
-                          subtitle: item.quantity == 0 && item.rate == 0.0
-                              ? null
-                              : Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Size: ${item.size}'),
-                                    Text(
-                                        'Quantity: ${item.quantity.toStringAsFixed(2)}'),
-                                    Text('Rate: ${item.rate}'),
-                                  ],
+                    onReorder: (int oldIndex, int newIndex) {
+                      setState(() {
+                        if (newIndex > oldIndex) {
+                          newIndex -= 1;
+                        }
+                        final item = _invoiceItems.removeAt(oldIndex);
+                        _invoiceItems.insert(newIndex, item);
+                      });
+                    },
+                    children: [
+                      for (int index = 0; index < _invoiceItems.length; index++)
+                        Card(
+                          key: ValueKey(_invoiceItems[index]),
+                          child: ListTile(
+                            title: Text('${_invoiceItems[index].item}'),
+                            subtitle: _invoiceItems[index].quantity == 0 &&
+                                    _invoiceItems[index].rate == 0.0
+                                ? null
+                                : Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                          'Size: ${_invoiceItems[index].size}'),
+                                      Text(
+                                          'Quantity: ${_invoiceItems[index].quantity.toStringAsFixed(2)}'),
+                                    ],
+                                  ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit),
+                                  onPressed: () => _editItem(index),
                                 ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () => _editItem(index),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () => _deleteItem(index),
-                              ),
-                            ],
+                                IconButton(
+                                  icon: const Icon(Icons.delete),
+                                  onPressed: () => _deleteItem(index),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      );
-                    },
+                    ],
                   ),
                 ),
               ],
@@ -235,17 +248,6 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
           children: [
             Expanded(
               child: TextFormField(
-                controller: _quantityController,
-                decoration: const InputDecoration(
-                  labelText: 'Quantity',
-                  border: UnderlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: TextFormField(
                 controller: _rateController,
                 decoration: const InputDecoration(
                   labelText: 'Rate',
@@ -253,6 +255,17 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                 ),
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: TextFormField(
+                controller: _quantityController,
+                decoration: const InputDecoration(
+                  labelText: 'Quantity',
+                  border: UnderlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
               ),
             ),
           ],
@@ -317,7 +330,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     );
   }
 
-  Widget _buildEditSection(Item item, int index) {
+  Widget _buildEditSection(Item item) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -339,18 +352,6 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
           children: [
             Expanded(
               child: TextFormField(
-                controller: _quantityController
-                  ..text = item.quantity.toString(),
-                decoration: const InputDecoration(
-                  labelText: 'Quantity',
-                  border: UnderlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: TextFormField(
                 controller: _rateController..text = item.rate.toString(),
                 decoration: const InputDecoration(
                   labelText: 'Rate',
@@ -360,11 +361,23 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                     const TextInputType.numberWithOptions(decimal: true),
               ),
             ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: TextFormField(
+                controller: _quantityController
+                  ..text = item.quantity.toString(),
+                decoration: const InputDecoration(
+                  labelText: 'Quantity',
+                  border: UnderlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+              ),
+            ),
             IconButton(
               icon: const Icon(Icons.check),
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
-                  _saveEditedItem(index);
+                  _saveEditedItem();
                 }
               },
             ),
@@ -417,11 +430,11 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     });
   }
 
-  void _saveEditedItem(int index) {
+  void _saveEditedItem() {
     setState(() {
-      _invoiceItems[index] = Item(
+      _invoiceItems[_editingIndex!] = Item(
         item: _itemController.text,
-        size: _invoiceItems[index].size,
+        size: _invoiceItems[_editingIndex!].size,
         quantity: double.parse((_quantityController.text.isNotEmpty
                 ? double.tryParse(_quantityController.text)
                 : 0.0)!
@@ -441,7 +454,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     });
   }
 
-  void _generatePDF() async {
+  void _generatePdf() async {
     final pdfData = await PdfGenerator.generatePdf(
       InvoiceItem(
         title: _titleController.text,
@@ -457,12 +470,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   }
 
   void _startListening() async {
-    if (_isListening) {
-      await _speech.stop();
-      setState(() {
-        _isListening = false;
-      });
-    } else {
+    if (!_isListening) {
       bool available = await _speech.initialize(
         onStatus: (status) {
           if (status == 'notListening') {

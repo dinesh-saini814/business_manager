@@ -1,20 +1,20 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
+// import 'package:flutter/material.dart';
+// import 'package:flutter_pdfview/flutter_pdfview.dart';
 
-class PdfPreviewScreen extends StatelessWidget {
-  final String path;
+// class PdfPreviewScreen extends StatelessWidget {
+//   final String path;
 
-  const PdfPreviewScreen({Key? key, required this.path}) : super(key: key);
+//   const PdfPreviewScreen({Key? key, required this.path}) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('PDF Preview'),
-      ),
-      body: PDFView(
-        filePath: path,
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('PDF Preview'),
+//       ),
+//       body: PDFView(
+//         filePath: path,
+//       ),
+//     );
+//   }
+// }

@@ -61,7 +61,7 @@ class _InvoiceItemFormState extends State<InvoiceItemForm> {
         children: [
           TextFormField(
             controller: _itemController,
-            decoration: InputDecoration(labelText: 'Item'),
+            decoration: const InputDecoration(labelText: 'Item'),
             keyboardType: TextInputType.multiline,
             textInputAction: TextInputAction.newline,
             maxLines: null,
@@ -72,14 +72,15 @@ class _InvoiceItemFormState extends State<InvoiceItemForm> {
               return null;
             },
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
                 child: TextFormField(
                   controller: _quantityController,
-                  decoration: InputDecoration(labelText: 'Quantity'),
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  decoration: const InputDecoration(labelText: 'Quantity'),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a quantity';
@@ -88,12 +89,13 @@ class _InvoiceItemFormState extends State<InvoiceItemForm> {
                   },
                 ),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Expanded(
                 child: TextFormField(
                   controller: _rateController,
-                  decoration: InputDecoration(labelText: 'Rate'),
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  decoration: const InputDecoration(labelText: 'Rate'),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a rate';
@@ -102,7 +104,7 @@ class _InvoiceItemFormState extends State<InvoiceItemForm> {
                   },
                 ),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               IconButton(
                 icon: Icon(_editIndex == null ? Icons.add : Icons.check),
                 onPressed: _submitForm,

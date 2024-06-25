@@ -38,15 +38,14 @@ dependencies:
   google_nav_bar: ^5.0.6
   pdf: ^3.10.8
   printing: ^5.12.0
-  shared_preferences: ^2.2.3
   path_provider: ^2.1.3
   open_file: ^3.3.2
-  flutter_pdfview: ^1.3.2
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   permission_handler: ^11.0.1
-  device_info_plus: ^9.1.2
-  speech_to_text: ^6.6.2
+  speech_to_text: 6.6.0
+  flutter_launcher_icons: ^0.13.1
+  http: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -76,8 +75,11 @@ flutter:
   assets:
     - assets/images/profile.jpeg
     - assets/images/iconR.png
-    - assets/fonts/NotoSansDevanagari-Regular.ttf
+    - assets/images/icon.png
+    - assets/fonts/Hind-Regular.ttf
+    - assets/fonts/Hind-Bold.ttf
     - assets/fonts/NotoSansDevanagari-Bold.ttf
+    - assets/fonts/NotoSansDevanagari-Regular.ttf
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
@@ -101,6 +103,9 @@ flutter:
   #       - asset: fonts/TrajanPro.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
-  #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/custom-fonts/#from-packages
+  # flutter_launcher_icons:
+  #   - image_path_android: "assets/images/icon.png"
+  #   - image_path_ios: "assets/images/icon.png"
+  #   - android: true
+  #   - ios: true
+  #   - min_sdk_android: 21
