@@ -48,6 +48,7 @@ dependencies:
   url_launcher: ^6.2.4
   gsheets: ^0.5.0
   speech_to_text: ^6.6.0
+  flutter_dotenv: ^5.1.0
 
 dev_dependencies:
   flutter_test:
@@ -82,6 +83,7 @@ flutter:
     - assets/fonts/Hind-Bold.ttf
     - assets/fonts/NotoSansDevanagari-Bold.ttf
     - assets/fonts/NotoSansDevanagari-Regular.ttf
+    - assets/creduncials.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

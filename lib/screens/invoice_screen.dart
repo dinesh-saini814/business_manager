@@ -6,22 +6,10 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:url_launcher/url_launcher.dart';
 
 final _credentials = r'''
-{
-  "type": "service_account",
-  "project_id": "bill-maker-427520",
-  "private_key_id": "fd05fddd505b47af5321caa3c92d6757e67dff62",
-  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCyUgFF3z8CEYTY\njwPz/YBjdAeU3TtH2J6JKJo9kCxp7WAS08tXICxj2lwPKs2bXjF8CGb4f+gSoJxj\nVr/1VGgtODgiGDeDLRoNe9vOOcf9siKPCUkriJbSXnl6+qTHlvHRe8OmZwuaD7PE\nVhmzjlXJJLOSoNNNhWS45SAUcXPZH1kwUCaonuMgqZKPBFL+vRcXWrJ9jpUlMMQY\nr7BZbdGb0tf0eFg60LqQv6nX68uAlh8MQdkODsxP1UIP+GP4lD3LSzT850F0QARM\nTuZNynXO+T6BmSxdHKqdc+A9NZbNzbl0+esngRnhyS9dKFBYSyu5z3sd10xa5cNI\nTJ+pmpe9AgMBAAECggEABza8kPJPVvrU9DrS5t24Qi25Ocs6YPVxMmzHUprAxTdC\nZfiV9wwY56A3jbCGWVT17QXc/owUHB7NvNIPWXIk9cFaufxfUIn0ThvW4FCjl86L\nSdyPDnkL2u5R/Uji/iUL2tTmLRbpl/2vIM/34bTuIQFAV3v0mGP/V2CDi/gr/tpN\ntYsJxCjhXVyYPdUWN4KhjmB7vcwHAhCDBMyGyBlJiq52k1RKWls7h2dQM/KTTAC3\n41UlFf+IKTStixY/T8KJg60p0dDGH0dzOV0m4fM6LnqfIH2J/jDDzDck0rif0k+E\ndf5HMtgDHhS9bEWLh7KHoLCnE4+8T0ZaelgGEK/XgQKBgQDoDHqANmXTOFWvelUU\nldlay01yZVWU7bSmVDDNOZfvhiJldMQad5CZl7o5NKkjOHNolgPtwjaF+42uqsGZ\nod2dMmmMIZqQK1pzvR1hy4AT8zCb93vn5c+AqCzKflH60O6KMkjh6sw3q2I6s0PQ\nt+6GF5Tc3DKcyzmQj968gWaCgQKBgQDEudaJoOs1r8v4qym5IDhWmKq5tO9SVKS8\nMIo5mrL86CMukOeFLW6h9h2X6Wg+QNgPRDKIerA2OrUMels6Dk8v3nVrD7i/R9Pe\nvb8YsRxV3Ypw8jAlbK3kaflT5NdwWYj0vsUaBshYB1gDULMzWJ0FG8r4nT83LR6F\n1of3gq//PQKBgQCslCNDWbGvPnWTlXLTZYMKoKsPyke1BHjXP0QwTYYvMN5CAG6c\nlJHpeUuZog2s0R4cCX4QhOGSEf1Ui1CDFzw/3i9bdd6DHIsgCuVgRz4RGEvto0j2\nthb2Q51UWFBWLq9J/o3v33VUbdUXfR2RjEoMVltzSx0lOYutdSKdpct8gQKBgGAN\nmPnED3Q8LKxy7kFMwRVPH3TjKkMZvwF/9c2ggipIMf1nlROKlk0QPWzR8ysKQDRc\nCQxoUyd3TLUV/PsAx5tI1C39FCiZKpLENM0alQo7zH/PUMDFKravI6TZxHM/1EYj\n61sE2sdYdpnPyl+Usb4vzs/K/3WyWwfgMq0gK0zFAoGACi/UPpkMzyqQBz3RR7eC\nwn4MqL5OTEwaa+RcK5QBMZA3DY/lPJUnr7m6PQ/27eESaIQDfe/FsCbZAQ68yNq+\npBbtPxOP9LAKNQB1tfH6qNVt31DnsdUwV7GnjYcahgQjlYELe8ciYMmh8XfinzaP\nq0PJsn2bmJ0i9GmPtHhHVVE=\n-----END PRIVATE KEY-----\n",
-  "client_email": "bill-maker-427@bill-maker-427520.iam.gserviceaccount.com",
-  "client_id": "116359643929522580259",
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/bill-maker-427%40bill-maker-427520.iam.gserviceaccount.com",
-  "universe_domain": "googleapis.com"
-}
+{// your credentials here}
   ''';
 
-final _spreadsheetId = '1uHYoqJjufmMev2mQCFF2M6Iqo887nk5SeaExrpvU9LA';
+final _spreadsheetId = 'your spreadsheet id here';
 
 class InvoiceScreen extends StatefulWidget {
   final List<Item>? initialItems;
