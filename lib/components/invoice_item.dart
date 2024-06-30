@@ -18,6 +18,15 @@ class InvoiceItem extends HiveObject {
     required this.items,
     this.selected = false,
   });
+
+  // Add this method
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'items': items.map((item) => item.toJson()).toList(),
+      'selected': selected,
+    };
+  }
 }
 
 @HiveType(typeId: 1)
@@ -40,4 +49,14 @@ class Item {
     required this.quantity,
     required this.rate,
   });
+
+  // Add this method
+  Map<String, dynamic> toJson() {
+    return {
+      'item': item,
+      'size': size,
+      'quantity': quantity,
+      'rate': rate,
+    };
+  }
 }

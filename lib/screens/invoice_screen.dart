@@ -1,14 +1,27 @@
-import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:bill_maker/components/invoice_item.dart';
-import 'package:bill_maker/components/pdf_generator.dart';
 import 'package:flutter/material.dart';
-import 'package:open_file/open_file.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:gsheets/gsheets.dart' as gsheet; // Prefixing gsheets
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
+
+final _credentials = r'''
+{
+  "type": "service_account",
+  "project_id": "bill-maker-427520",
+  "private_key_id": "fd05fddd505b47af5321caa3c92d6757e67dff62",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCyUgFF3z8CEYTY\njwPz/YBjdAeU3TtH2J6JKJo9kCxp7WAS08tXICxj2lwPKs2bXjF8CGb4f+gSoJxj\nVr/1VGgtODgiGDeDLRoNe9vOOcf9siKPCUkriJbSXnl6+qTHlvHRe8OmZwuaD7PE\nVhmzjlXJJLOSoNNNhWS45SAUcXPZH1kwUCaonuMgqZKPBFL+vRcXWrJ9jpUlMMQY\nr7BZbdGb0tf0eFg60LqQv6nX68uAlh8MQdkODsxP1UIP+GP4lD3LSzT850F0QARM\nTuZNynXO+T6BmSxdHKqdc+A9NZbNzbl0+esngRnhyS9dKFBYSyu5z3sd10xa5cNI\nTJ+pmpe9AgMBAAECggEABza8kPJPVvrU9DrS5t24Qi25Ocs6YPVxMmzHUprAxTdC\nZfiV9wwY56A3jbCGWVT17QXc/owUHB7NvNIPWXIk9cFaufxfUIn0ThvW4FCjl86L\nSdyPDnkL2u5R/Uji/iUL2tTmLRbpl/2vIM/34bTuIQFAV3v0mGP/V2CDi/gr/tpN\ntYsJxCjhXVyYPdUWN4KhjmB7vcwHAhCDBMyGyBlJiq52k1RKWls7h2dQM/KTTAC3\n41UlFf+IKTStixY/T8KJg60p0dDGH0dzOV0m4fM6LnqfIH2J/jDDzDck0rif0k+E\ndf5HMtgDHhS9bEWLh7KHoLCnE4+8T0ZaelgGEK/XgQKBgQDoDHqANmXTOFWvelUU\nldlay01yZVWU7bSmVDDNOZfvhiJldMQad5CZl7o5NKkjOHNolgPtwjaF+42uqsGZ\nod2dMmmMIZqQK1pzvR1hy4AT8zCb93vn5c+AqCzKflH60O6KMkjh6sw3q2I6s0PQ\nt+6GF5Tc3DKcyzmQj968gWaCgQKBgQDEudaJoOs1r8v4qym5IDhWmKq5tO9SVKS8\nMIo5mrL86CMukOeFLW6h9h2X6Wg+QNgPRDKIerA2OrUMels6Dk8v3nVrD7i/R9Pe\nvb8YsRxV3Ypw8jAlbK3kaflT5NdwWYj0vsUaBshYB1gDULMzWJ0FG8r4nT83LR6F\n1of3gq//PQKBgQCslCNDWbGvPnWTlXLTZYMKoKsPyke1BHjXP0QwTYYvMN5CAG6c\nlJHpeUuZog2s0R4cCX4QhOGSEf1Ui1CDFzw/3i9bdd6DHIsgCuVgRz4RGEvto0j2\nthb2Q51UWFBWLq9J/o3v33VUbdUXfR2RjEoMVltzSx0lOYutdSKdpct8gQKBgGAN\nmPnED3Q8LKxy7kFMwRVPH3TjKkMZvwF/9c2ggipIMf1nlROKlk0QPWzR8ysKQDRc\nCQxoUyd3TLUV/PsAx5tI1C39FCiZKpLENM0alQo7zH/PUMDFKravI6TZxHM/1EYj\n61sE2sdYdpnPyl+Usb4vzs/K/3WyWwfgMq0gK0zFAoGACi/UPpkMzyqQBz3RR7eC\nwn4MqL5OTEwaa+RcK5QBMZA3DY/lPJUnr7m6PQ/27eESaIQDfe/FsCbZAQ68yNq+\npBbtPxOP9LAKNQB1tfH6qNVt31DnsdUwV7GnjYcahgQjlYELe8ciYMmh8XfinzaP\nq0PJsn2bmJ0i9GmPtHhHVVE=\n-----END PRIVATE KEY-----\n",
+  "client_email": "bill-maker-427@bill-maker-427520.iam.gserviceaccount.com",
+  "client_id": "116359643929522580259",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/bill-maker-427%40bill-maker-427520.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
+  ''';
+
+final _spreadsheetId = '1uHYoqJjufmMev2mQCFF2M6Iqo887nk5SeaExrpvU9LA';
 
 class InvoiceScreen extends StatefulWidget {
   final List<Item>? initialItems;
@@ -135,7 +148,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
           actions: [
             IconButton(
               icon: const Icon(Icons.picture_as_pdf),
-              onPressed: _generatePdf,
+              onPressed: _generateSheet,
             ),
           ],
         ),
@@ -454,19 +467,57 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     });
   }
 
-  void _generatePdf() async {
-    final pdfData = await PdfGenerator.generatePdf(
-      InvoiceItem(
-        title: _titleController.text,
-        items: _invoiceItems,
-      ),
-    );
+  Future<void> _generateSheet() async {
+    final gsheets = gsheet.GSheets(_credentials);
+    final ss = await gsheets.spreadsheet(_spreadsheetId);
 
-    final output = await getExternalStorageDirectory();
-    final file = File('${output!.path}/invoice.pdf');
-    await file.writeAsBytes(pdfData);
+    // Get the worksheet or create if it does not exist
+    var sheet = ss.worksheetByTitle('Invoice1');
+    sheet ??= await ss.addWorksheet(_titleController.text);
 
-    OpenFile.open(file.path);
+    // Prepare data
+    final invoiceData = [
+      [
+        'Item',
+        'Size',
+        'Quantity',
+        'Rate',
+        'Total',
+      ],
+      ..._invoiceItems.map((item) => [
+            item.item,
+            item.size,
+            item.quantity.toString(),
+            item.rate.toString(),
+            (item.quantity * item.rate).toString(),
+          ]),
+    ];
+
+    // Clear the existing content
+    await sheet.clear();
+
+    // Insert data into the sheet starting from row 13 and column B (which is the 2nd column)
+    int startRow = 13;
+    int startCol = 2;
+
+    for (int i = 0; i < invoiceData.length; i++) {
+      await sheet.values.insertRow(
+        startRow + i,
+        invoiceData[i],
+        fromColumn: startCol,
+      );
+    }
+
+    // Generate download URL
+    final downloadUrl =
+        'https://docs.google.com/spreadsheets/d/$_spreadsheetId/export?format=xlsx';
+
+    // Open the download URL
+    if (await canLaunch(downloadUrl)) {
+      await launch(downloadUrl);
+    } else {
+      throw 'Could not launch $downloadUrl';
+    }
   }
 
   void _startListening() async {
