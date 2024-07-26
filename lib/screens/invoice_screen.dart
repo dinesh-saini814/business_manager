@@ -7,7 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 
 // Replace with your actual _credentials
-// final _credentials = your credentials here
+// final _credentials = (your credentials here)
 
 // Replace with your actual spreadsheet ID
 // final spreadsheetId = 'your_spreadsheet_id';
@@ -457,8 +457,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   }
 
   Future<void> _generateSheet() async {
-    final gsheets = gsheet.GSheets(_credentials);
-    final ss = await gsheets.spreadsheet(_spreadsheetId);
+    final gsheets = gsheet.GSheets("_credentials");
+    final ss = await gsheets.spreadsheet("_spreadsheetId");
 
     // Get the worksheet or create if it does not exist
     var sheet = ss.worksheetByTitle('Invoice');
