@@ -7,14 +7,10 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 
 // Replace with your actual _credentials
-// final _credentials = r'''
-// {
-// your credentials here
-// }
-//   ''';
+// final _credentials = your credentials here
 
 // Replace with your actual spreadsheet ID
-final spreadsheetId = 'your_spreadsheet_id';
+// final spreadsheetId = 'your_spreadsheet_id';
 
 class InvoiceScreen extends StatefulWidget {
   final List<Item>? initialItems;
