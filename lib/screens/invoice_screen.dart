@@ -6,23 +6,15 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 
-final _credentials = r'''
-{
-  "type": "service_account",
-  "project_id": "business-maker-cdad3",
-  "private_key_id": "f8cb560a849e11b7bc7ef9e39a69db4b8cb08087",
-  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCrnmqDQhc58HMz\nzJ15NIze8VN98VmIyAvDD9fekz9tTKzhQWfN4VmeL1BtpIHv1aKzn0qSg4tjigLY\nF6PkvZX67YuzNonJW64X41NdO6ANhPgwRlvTMvHsP4uEqjpLi0/FwhScwu/I/hS3\nhH+RFaHZTT9N9emL5He3jNYBzmEx7pUEV56foHq17A8fldygtW/E3AItQDBhoF24\n2LMHOOJ8A4YqK8hc9+gdgrHI/fQSastjr0672e9NSBLaYGVKOSjWWTPdC5BO4gX3\nEFIMR7Zg4eyKtxF4UKaKacbMUnj+nc9xxpn+A3TItrNhqzKFdUMQhej2hI0Wo6/X\nV9As6eoxAgMBAAECggEARLRQRsjkHH1e2UtedYHsrWnmN2KyKdiQIOCMVp4TQ9Hw\n2eLByEGhi3q8k5BKtnWLw6YPCBWibVB4cAMSyUV+r+x+Q1ofkh1iVkza+FWg7xie\n9VCNfUEFacNMuukdGlYksvJOJy3BKfFR4OAp467J0wEiSTcb7rWhmblHiYSSE5cc\nb+ZUhpnhGS1wOGxtf2nqAcYXlgCdPbBpXPuDZpd4/QQiG6CTttnzM7pVW7oyQaWt\n8SQkMhOjwErPKXf+MGTYY2+RossGDaz39T4fk4BjAPjdoK9o0E1npoqAlUZTqa8p\njz0YaVmGYYlHc3OSrujkYFC6GN7iYYQf1ZUTRj1NKwKBgQDWydxQzSJuPG4yRAU6\nH2hn3Hfl/17BN2slbl43b5dIshOJiNf9GBYtJ6wDwxy8oOWqzhRM8hw/9wn74InS\neOddw9R/Q3nVwgSG81Mqzd6UsUp5HhVNI6Dxv0+ojXAjLRQ7H8BHcJSOdcmJBvZ/\ng9em5yBKofQ7Ezvx10qs8dTaswKBgQDMjB1Ejaoj9cfyX8Q7kOnhwSfUihsHoEua\nVFWqFJXzGnCPElIyAqMd1w28LOxnUdQgj88MttZtLXD+mqc6pCH1sJ4w65VhJWmE\ntfs7TIUt3pCjpRj82nVKBMgJpmL49kzVEkwwWTPUvtE66k4lzWIxxRcCQ8B+vMB6\nOSmJta2piwKBgEErnIKTy2ehRFpSEzfwgbBJz8Nkea6sjwEbfNDbNg7joVPwxoBP\nx6LJz8KQd+6v7x+lSbmTGIk7/raDCa5n6uOjYJ2Arr3yEYeU2t44+tko9gzL2PC/\n57ySLKxaxfSWX/YUizXh7eFP0eeWykIkkdFdfYnHnCA0lNKrXUgeVFRLAoGAA77N\nCmRNqTrm3llCjpSos6mFwS6GMC2PNNQ2fVbDKCBjzzrWpnPF6NX3OmrYKUwmRjJb\n6C+w3W7nksHiLgCzXnxNaTfnFFBLDlMGtp9AEQbyPwzW2Epnu2M7BnI1fbmEzqH3\nIyt+93ZG/n0r0SVhlue09CWpcKikHZjOWecptuECgYEAyxXU2SB6RPZkDQ7mfNCl\n42lJKuzuBYX/cudafJ9iK53oLoJQdTRLpmqslvNXotiqEP501KrqVc49iKtEPOwB\n87ixxDKe/fgObSr+2UXVErdzBudMNt7b7gUfZxeME8Wxz0YBKtfmEx6LZb04dsZ4\nNlpA4r/6kVADEiVD2kDc35I=\n-----END PRIVATE KEY-----\n",
-  "client_email": "business-maker-cdad3@appspot.gserviceaccount.com",
-  "client_id": "106520396962702083691",
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/business-maker-cdad3%40appspot.gserviceaccount.com",
-  "universe_domain": "googleapis.com"
-}
-  ''';
+// Replace with your actual _credentials
+// final _credentials = r'''
+// {
+// your credentials here
+// }
+//   ''';
 
-final _spreadsheetId = '1uHYoqJjufmMev2mQCFF2M6Iqo887nk5SeaExrpvU9LA';
+// Replace with your actual spreadsheet ID
+final spreadsheetId = 'your_spreadsheet_id';
 
 class InvoiceScreen extends StatefulWidget {
   final List<Item>? initialItems;
